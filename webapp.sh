@@ -1,7 +1,7 @@
 #!/bin/sh
 
 ### BEGIN INIT INFO
-#	Provides :			myservice
+#	Provides :			webapp
 #	Required-Start			$remote_fs $syslog
 #	Required-Stop			$remote_fs $syslog
 #	Default-Start			2 3 4 5 
@@ -11,26 +11,31 @@
 ### END INIT INFO
 
 #Change the next three lines to suit where you install your script and what you want it called
-DIR=~/webapp/
-DAEMON=$DIR/app.py
+DIR=/home/programmer/webapp/
+DAEMON="$DIR/webapp.py"
 DAEMON_NAME=webapp
+
+echo $DAEMON
 
 #add any command line options for your daemon here
 DAEMON_OPTS=""
 
 #this nsxt line determines what user the script runs as
 #Root generally not recommended ,but is necessary if you are using the Raspberry Pi GPIO from Python
-DAEMON_USER=ec2-user
+#will debug with root then change to programmer after working
+DAEMON_USER=root
 
 #the process id of the script when it runs is store here
-PIDFILE=/var/run/$DAEMON_NAMe.pid
+PIDFILE=/var/run/$DAEMON_NAME.pid
 
 #. /lib/lsb/init-functions
 
 do_start(){
+	echo -n "Starting  $DAEMON_NAME status "
 	#log_daemon_msg "Start system $DAEMON_NAME daemon")
 	start-stop-daemon --start --background --pidfile $PIDFILE --make-pidfile --user $DAEMON_USER  --chuid $DAEMON_USER --startas $DAEMON -- $DAEMON_OPTS
 	#log_end_msg $?
+	echo "$?"
 }	
 
 do_stop(){
@@ -42,7 +47,7 @@ do_stop(){
 case "$1" in
 	start|stop)
 		do_${1}
-	;;
+		;;
 
 	restart|reload|force-reload)
 		do_stop
@@ -50,11 +55,10 @@ case "$1" in
 		;;	
 
 	status)
-		status_of_proc "$DAEMON_NAME" "DAEMON" && exit 0 || exit $?
+		#status_of_proc "$DAEMON_NAME" "DAEMON" && exit 0 || exit $?
 		;;
-
 	*)
-		echo "Usage: /etc/init.d/$DAEMON_NAME {start|stop|restart|statuys}"
+		echo "Usage: /etc/init.d/$DAEMON_NAME {start|stop|restart|status}"
 		exit 1
 		;;
 esac
