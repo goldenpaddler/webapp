@@ -1,5 +1,8 @@
 #!/bin/sh
 
+#chkconfig: 2345 80 95
+#description: webapp
+
 ### BEGIN INIT INFO
 #	Provides :			webapp
 #	Required-Start			$remote_fs $syslog
@@ -28,19 +31,22 @@ DAEMON_USER=root
 #the process id of the script when it runs is store here
 PIDFILE=/var/run/$DAEMON_NAME.pid
 
-#. /lib/lsb/init-functions
+. /lib/lsb/init-functions
 
 do_start(){
 	echo -n "Starting  $DAEMON_NAME status "
-	#log_daemon_msg "Start system $DAEMON_NAME daemon")
+	#log_daemon_msg "Start system $DAEMON_NAME daemon"
 	start-stop-daemon --start --background --pidfile $PIDFILE --make-pidfile --user $DAEMON_USER  --chuid $DAEMON_USER --startas $DAEMON -- $DAEMON_OPTS
 	#log_end_msg $?
 	echo "$?"
 }	
 
 do_stop(){
-	#log_daemon_msg("Stopping system $DAEMON_NAME daemon"
-	start-stop-daemon --stop --pidfile $PIDFILE --retry 10
+	#log_daemon_msg "Stopping system $DAEMON_NAME daemon"
+	#the line below is commented out because it is only killing the child process, not entire process tree
+	#start-stop-daemon --stop --pidfile $PIDFILE --retry 10
+	PID=$(cat $PIDFILE | grep -o [0-9]*)
+	kill $(pstree $PID -p -a -l | grep -o [0-9]*)
 	#log_end_msg $?
 }
 
